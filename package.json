@@ -1,16 +1,23 @@
 {
   "name": "recruit-query-ahut",
   "version": "1.0.0",
-  "description": "",
+  "description": "安工大招聘会信息查询系统，用于从安工大就业网获取招聘会信息",
   "main": "dist/main.js",
   "type": "module",
   "scripts": {
-    "dev": "ts-node main.ts",
+    "dev": "ts-node functions/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/functions/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "netlify-dev": "netlify dev"
   },
-  "keywords": [],
+  "keywords": [
+    "recruit",
+    "campus",
+    "job",
+    "api",
+    "ahut"
+  ],
   "author": "TaoEngine",
   "license": "ISC",
   "dependencies": {
@@ -18,6 +25,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@netlify/functions": "^2.8.2",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.1",
     "ts-node": "^10.9.2",

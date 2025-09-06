@@ -2,6 +2,8 @@ AI做的
 可以从 `安工大就业网` 随时获取招聘会开展信息
 以及招聘企业的网站
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/307df36b-5a10-47c9-8800-c6467c5d224d/deploy-status)](https://app.netlify.com/projects/recruit-query-ahut/deploys)
+
 对了分享以下从 `安工大就业网` 中获取信息的接口
 
 ### 获取招聘会日期
