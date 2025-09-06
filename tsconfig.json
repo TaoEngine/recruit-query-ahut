@@ -19,29 +19,12 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     
-    // 模块解析选项
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    
-    // 输出选项
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    
-    // 库和类型定义
-    "lib": ["esnext"],
-    "types": ["node"],
-    
-    // 其他选项
-    "jsx": "react-jsx",
-    "noUncheckedSideEffectImports": true,
-    "skipLibCheck": true
+    // 禁止生成声明文件，避免Netlify警告
+    "declaration": false,
+    "declarationMap": false
   },
   "include": [
-    "./**/*.ts"
+    "functions/**/*"
   ],
   "exclude": [
     "node_modules",
