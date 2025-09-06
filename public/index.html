@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安工大招聘会信息</title>
+  <!-- Materialize CSS -->
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      background-color: #e6f2ff; /* 莫奈浅蓝色背景 */
+      color: #4a5568;
+    }
+    .header {
+      background-color: #a2c1da; /* 莫奈浅蓝色头部 */
+      color: white;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .collection {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .collection-item {
+      border-bottom: 1px solid #e6f2ff;
+    }
+    .carousel {
+      height: 150px;
+      margin: 20px 0;
+    }
+    .carousel-item {
+      width: 120px;
+      height: 140px;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .date-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .event-count {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 3px 10px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .monet-color-1 { background-color: #a2c1da; }
+    .monet-color-2 { background-color: #b3cde0; }
+    .monet-color-3 { background-color: #c9d7e0; }
+    .monet-color-4 { background-color: #d5e1e8; }
+    .monet-color-5 { background-color: #e0ebef; }
+    .monet-color-6 { background-color: #a8d0e6; }
+    .monet-color-7 { background-color: #b8d4e3; }
+    .monet-color-8 { background-color: #c5d5e0; }
+    .monet-color-9 { background-color: #d6e2e3; }
+    .monet-color-10 { background-color: #e2e8e8; }
+    .preloader-wrapper {
+      margin: 30px auto;
+      display: block;
+    }
+    .company-name {
+      font-weight: bold;
+      color: #2c5282;
+    }
+    .time-info {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+    .location-info {
+      color: #4a5568;
+      font-size: 0.9rem;
+    }
+    .days-left {
+      color: #38a169;
+      font-weight: bold;
+    }
+    .section-title {
+      color: #2c5282;
+      border-bottom: 2px solid #a2c1da;
+      padding-bottom: 10px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h5>安工大招聘会信息</h5>
+    <p class="current-date" id="current-date">加载中...</p>
+  </div>
+
+  <div class="container">
+    <!-- 日历轮播区域 -->
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">招聘会日历</span>
+        <div class="carousel" id="date-carousel">
+          <!-- 动态生成的日期卡片 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 加载进度条 -->
+    <div class="center" id="loading">
+      <div class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+      <p>正在加载招聘会信息...</p>
+    </div>
+
+    <!-- 招聘会列表 -->
+    <h5 class="section-title">近期招聘会</h5>
+    <ul class="collection" id="recruit-list">
+      <!-- 动态生成的招聘会列表 -->
+    </ul>
+  </div>
+
+  <!-- Materialize JS -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth() + 1; // JS月份从0开始
+      
+      // 更新当前日期显示
+      document.getElementById('current-date').textContent = 
+        `${year}年${month}月${today.getDate()}日`;
+
+      // 获取当前月份的招聘会日期
+      fetch('/api/recruit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `action=cale&month=0`
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.r === 0) {
+          const dates = res.data.map(item => item.HoldDate);
+          const todayDate = today.getDate();
+          
+          // 生成轮播日历
+          generateDateCarousel(dates, month);
+          
+          // 找出今天之后的日期
+          const upcomingDates = dates.filter(d => d >= todayDate);
+          
+          if (upcomingDates.length === 0) {
+            hideLoading();
+            document.getElementById('recruit-list').innerHTML = 
+              '<li class="collection-item">本月暂无后续招聘会</li>';
+            return;
+          }
+          
+          // 获取所有招聘会数据（一次性获取更多数据）
+          const monthStr = String(month).padStart(2, '0');
+          fetch('/api/recruit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `action=calelist&pagesize=50&pageindex=1&year=${year}&mon=${monthStr}&day=`
+          })
+          .then(res => res.json())
+          .then(result => {
+            hideLoading();
+            if (result.r === 0 && result.data) {
+              // 过滤出当前月份的招聘会
+              const currentMonthRecruits = result.data.filter(recruit => {
+                const recruitDate = new Date(recruit.HoldDate);
+                return recruitDate.getMonth() + 1 === month;
+              });
+              
+              displayRecruitList(currentMonthRecruits);
+            } else {
+              document.getElementById('recruit-list').innerHTML = 
+                '<li class="collection-item">获取数据失败</li>';
+            }
+          })
+          .catch(err => {
+            hideLoading();
+            console.error(err);
+            document.getElementById('recruit-list').innerHTML = 
+              '<li class="collection-item">网络错误</li>';
+          });
+        } else {
+          hideLoading();
+          document.getElementById('recruit-list').innerHTML = 
+            '<li class="collection-item">获取数据失败</li>';
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        console.error(err);
+        document.getElementById('recruit-list').innerHTML = 
+          '<li class="collection-item">网络错误</li>';
+      });
+      
+      // 生成日期轮播
+      function generateDateCarousel(dates, month) {
+        const carousel = document.getElementById('date-carousel');
+        const colorClasses = [
+          'monet-color-1', 'monet-color-2', 'monet-color-3', 
+          'monet-color-4', 'monet-color-5', 'monet-color-6',
+          'monet-color-7', 'monet-color-8', 'monet-color-9', 'monet-color-10'
+        ];
+        
+        // 按日期排序
+        dates.sort((a, b) => a - b);
+        
+        // 生成每个日期卡片
+        dates.forEach(date => {
+          const colorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+          const div = document.createElement('div');
+          div.className = `carousel-item ${colorClass} white-text`;
+          div.innerHTML = `
+            <div class="date-number">${date}</div>
+            <div>${month}月</div>
+            <div class="event-count">${getEventsCountForDate(date)}场</div>
+          `;
+          carousel.appendChild(div);
+        });
+        
+        // 初始化轮播组件
+        setTimeout(() => {
+          const elems = document.querySelectorAll('.carousel');
+          M.Carousel.init(elems, {
+            duration: 200,
+            dist: -20,
+            shift: 0,
+            padding: 20,
+            numVisible: 5
+          });
+        }, 100);
+      }
+      
+      // 获取某日期的招聘会场次数量（模拟数据，实际应从API获取）
+      function getEventsCountForDate(date) {
+        // 这里简化处理，实际应根据API返回的数据计算
+        return Math.floor(Math.random() * 5) + 1;
+      }
+      
+      // 隐藏加载动画
+      function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+      }
+      
+      // 显示招聘会列表
+      function displayRecruitList(recruits) {
+        const listEl = document.getElementById('recruit-list');
+        
+        if (recruits.length === 0) {
+          listEl.innerHTML = '<li class="collection-item">本月暂无招聘会</li>';
+          return;
+        }
+        
+        // 按日期排序
+        recruits.sort((a, b) => {
+          return new Date(a.HoldDate) - new Date(b.HoldDate);
+        });
+        
+        let html = '';
+        recruits.forEach(recruit => {
+          const recruitDate = new Date(recruit.HoldDate);
+          const daysLeft = Math.ceil((recruitDate - today) / (1000 * 60 * 60 * 24));
+          
+          html += `
+            <li class="collection-item avatar">
+              <i class="material-icons circle">work</i>
+              <div class="company-name">${recruit.Theme}</div>
+              <div class="time-info">
+                ${recruitDate.getMonth() + 1}月${recruitDate.getDate()}日 ${recruit.TimeSlotText}
+              </div>
+              <div class="location-info">${recruit.VenuesText}</div>
+              <div class="days-left">${daysLeft > 0 ? `还有${daysLeft}天` : '正在进行'}</div>
+            </li>
+          `;
+        });
+        
+        listEl.innerHTML = html;
+      }
+    });
+  </script>
+</body>
+</html>
